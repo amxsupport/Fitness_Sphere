@@ -43,4 +43,13 @@ Contributions are welcome! Please read the [contributing guidelines](docs/CONTRI
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Author
+
+### **Abdelaaziz Amksa**
+
+I'm passionate and dedicated software engineer with a proven track record of leveraging technology to drive innovation and solve complex problems. Currently excelling as a LIMS Administrator at a leading research center REMINEX SA, where I apply my technical expertise to optimize laboratory operations and facilitate scientific research.
+
+[Github](https://github.com/amxsupport)
+[LinkedIn](https://www.linkedin.com/in/abdelaaziz-amksa-28689753/)
+[Twitter](https://twitter.com/abdoudev)
 
