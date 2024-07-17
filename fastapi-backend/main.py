@@ -82,4 +82,68 @@ async def upload_video(file: UploadFile = File(...), exercise_type: str = None):
 
     return JSONResponse(status_code=200, content=response_data)
 
+@app.get("/get-count")
+def get_count():
+    global REPS
+    reps = REPS
+    REPS = 0
+    return {"count": reps}
+
+@app.post("/crawl-images")
+def crawl_images(query: str):
+    x = time.time()
+    google_crawler = GoogleImageCrawler(storage={'root_dir': f'temp{x}'})
+    google_crawler.crawl(keyword=query, max_num=1)
+
+    # Get the downloaded image
+    image_path = f"temp{x}/{os.listdir(f'./temp{x}')[0]}"
+    
+    # Open the image and convert it to base64
+    with open(image_path, 'rb') as image_file:
+        image = Image.open(image_file)
+        buffered = BytesIO()
+        image.save(buffered, format="JPEG")
+        base64_image = base64.b64encode(buffered.getvalue()).decode()
+
+    return {"image_base64":base64_image}
+
+
+@app.get("/create_meeting/")
+def create_meeting(date: str):
+    date = datetime.strptime(date, "%m-%d-%Y")
+    dat = date.day
+    year = date.year
+
+    int_to_month = {
+        "01": Jan,
+        "02": Feb,
+        "03": Mar,
+        "04": Apr,
+        "05": May,
+        "06": Jun,
+        "07": Jul,
+        "08": Aug,
+        "09": Sept,
+        "10": Oct,
+        "11": Nov,
+        "12": Dec,
+    }
+
+    month = int_to_month[date.strftime("%m")]
+
+    calendar = GoogleCalendar(
+        "mokshitsurana3110@gmail.com", credentials_path=".credentials/credentials.json"
+    )
+
+    calendar.add_event(
+        Event(
+            "Online Doctor Consultancy",
+            start=(dat / month / year)[15:00],
+            conference_solution=ConferenceSolutionCreateRequest(
+                solution_type=SolutionType.HANGOUTS_MEET,
+            ),
+        )
+    )
+
+    return {"ok": "ok"}
 
