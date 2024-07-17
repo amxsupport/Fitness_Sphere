@@ -22,4 +22,15 @@ class poseDetector() :
                                      self.enable_segmentation, self.smooth_segmentation,
                                      self.detectionCon, self.trackCon)
 
+    def findPose (self, img, draw=True):
+        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        self.results = self.pose.process(imgRGB)
+        
+        if self.results.pose_landmarks:
+            if draw:
+                self.mpDraw.draw_landmarks(img,self.results.pose_landmarks,
+                                           self.mpPose.POSE_CONNECTIONS)
+                
+        return img
+
 
