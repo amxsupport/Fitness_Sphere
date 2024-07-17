@@ -82,4 +82,64 @@ def pose_detection(
     return
 
 
+def exercise_detection(
+    video_file_path: str,
+    video_name_to_save: str,
+    exercise_type: str,
+    rescale_percent: float = 40,
+) -> dict:
+    ed = EXERCISE_DETECTIONS.get(exercise_type)
+    if not ed:
+        print("Not supported exercise.")
 
+    cap = cv2.VideoCapture(video_file_path)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) * rescale_percent / 100)
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) * rescale_percent / 100)
+    size = (width, height)
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    frame_count = 0
+
+    fourcc = cv2.VideoWriter_fourcc(*"avc1")
+    saved_path = f"./videos/video1.mp4"
+    out = cv2.VideoWriter(saved_path, fourcc, fps, size)
+
+    print("PROCESSING VIDEO ...")
+    with mp_pose.Pose(
+        min_detection_confidence=0.8, min_tracking_confidence=0.8
+    ) as pose:
+        while cap.isOpened():
+            ret, image = cap.read()
+
+            if not ret:
+                break
+
+            # Calculate timestamp
+            frame_count += 1
+            timestamp = frame_count // fps
+
+            image = rescale_frame(image, rescale_percent)
+
+            # Recolor image from BGR to RGB for mediapipe
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            image.flags.writeable = False
+
+            results = pose.process(image)
+
+            # Recolor image from BGR to RGB for mediapipe
+            image.flags.writeable = True
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+            if results.pose_landmarks:
+                ed.detect(mp_results=results, image=image, timestamp=timestamp)
+
+            out.write(image)
+
+    print(f"PROCESSED. Save path: {saved_path}")
+
+    processed_results = ed.handle_detected_results(video_name=video_name_to_save)
+    ed.clear_results()
+    return processed_results
+
+
+# print("two")
+# print(exercise_detection("../videos/lunge_demo.mp4", "video_lunge", "lunge"))
