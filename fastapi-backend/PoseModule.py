@@ -79,4 +79,19 @@ class poseDetector() :
         return angle
         
 
-
+def main():
+    detector = poseDetector()
+    cap = cv2.VideoCapture(0)
+    while cap.isOpened():
+        ret, img = cap.read() #ret is just the return variable, not much in there that we will use. 
+        if ret:    
+            img = detector.findPose(img)
+            cv2.imshow('Pose Detection', img)
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
+            
+    cap.release()
+    cv2.destroyAllWindows()
+    
+if __name__ == "__main__":
+    main()
