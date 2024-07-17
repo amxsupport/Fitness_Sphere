@@ -1,0 +1,5 @@
+videos/
+static/
+djenv/
+__pycache__/
+stream_video/
