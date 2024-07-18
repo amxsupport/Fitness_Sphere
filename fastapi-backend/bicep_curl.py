@@ -172,3 +172,46 @@ class BicepPoseAnalysis:
         return (bicep_curl_angle, ground_upper_arm_angle, has_error)
 
     # TODO Rename this here and in `analyze_pose`
+    def _extracted_from_analyze_pose_52(self, frame, arg1):
+        cv2.rectangle(frame, (350, 0), (600, 40), (245, 117, 16), -1)
+        cv2.putText(
+            frame,
+            "ARM ERROR",
+            (360, 12),
+            cv2.QT_FONT_NORMAL,
+            0.5,
+            (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+        cv2.putText(
+            frame,
+            arg1,
+            (355, 30),
+            cv2.QT_FONT_NORMAL,
+            0.5,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA,
+        )
+
+    def get_counter(self) -> int:
+        return self.counter
+
+    def reset(self):
+        self.counter = 0
+        self.stage = "down"
+        self.is_visible = True
+        self.detected_errors = {
+            "LOOSE_UPPER_ARM": 0,
+            "PEAK_CONTRACTION": 0,
+        }
+
+        # Params for loose upper arm error detection
+        self.loose_upper_arm = False
+
+        # Params for peak contraction error detection
+        self.peak_contraction_angle = 1000
+
+
+
