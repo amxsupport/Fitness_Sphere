@@ -348,4 +348,228 @@ class BicepCurlDetection:
             traceback.print_exc()
             raise e
 
+    # TODO Rename this here and in `detect`
+    def _extracted_from_detect_17(self, image, mp_results, timestamp):
+        video_dimensions = [image.shape[1], image.shape[0]]
+        landmarks = mp_results.pose_landmarks.landmark
 
+        # * Model prediction for Lean-back error
+        # Extract keypoints from frame for the input
+        row = extract_important_keypoints(mp_results, self.important_landmarks)
+        X = pd.DataFrame(
+            [
+                row,
+            ],
+            columns=self.headers[1:],
+        )
+        X = pd.DataFrame(self.input_scaler.transform(X))
+
+        # Make prediction and its probability
+        predicted_class = self.model.predict(X)[0]
+        prediction_probabilities = self.model.predict_proba(X)[0]
+        class_prediction_probability = round(
+            prediction_probabilities[np.argmax(prediction_probabilities)], 2
+        )
+
+        if class_prediction_probability >= self.POSTURE_ERROR_THRESHOLD:
+            self.stand_posture = predicted_class
+
+            # Stage management for saving results
+        if self.stand_posture == "L":
+            if self.previous_stand_posture != self.stand_posture:
+                self.results.append(
+                    {
+                        "stage": "lean too far back",
+                        "frame": image,
+                        "timestamp": timestamp,
+                    }
+                )
+
+            self.has_error = True
+
+        self.previous_stand_posture = self.stand_posture
+
+        # * Arms analysis for errors
+        # Left arm
+        (
+            left_bicep_curl_angle,
+            left_ground_upper_arm_angle,
+            left_arm_error,
+        ) = self.left_arm_analysis.analyze_pose(
+            landmarks=landmarks,
+            frame=image,
+            results=self.results,
+            timestamp=timestamp,
+            lean_back_error=(self.stand_posture == "L"),
+        )
+
+        # Right arm
+        (
+            right_bicep_curl_angle,
+            right_ground_upper_arm_angle,
+            right_arm_error,
+        ) = self.right_arm_analysis.analyze_pose(
+            landmarks=landmarks,
+            frame=image,
+            results=self.results,
+            timestamp=timestamp,
+            lean_back_error=(self.stand_posture == "L"),
+        )
+
+        self.has_error = (
+            True if (right_arm_error or left_arm_error) else self.has_error
+        )
+
+        # Visualization
+        # Draw landmarks and connections
+        landmark_color, connection_color = get_drawing_color(self.has_error)
+        mp_drawing.draw_landmarks(
+            image,
+            mp_results.pose_landmarks,
+            mp_pose.POSE_CONNECTIONS,
+            mp_drawing.DrawingSpec(
+                color=landmark_color, thickness=2, circle_radius=2
+            ),
+            mp_drawing.DrawingSpec(
+                color=connection_color, thickness=2, circle_radius=1
+            ),
+        )
+
+        # Status box
+        cv2.rectangle(image, (0, 0), (350, 40), (199,89,255), -1)
+
+        # Display probability
+        cv2.putText(
+            image,
+            "RIGHT",
+            (15, 12),
+            cv2.QT_FONT_NORMAL,
+            0.5,
+            (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+        cv2.putText(
+            image,
+            str(self.right_arm_analysis.counter)
+            if self.right_arm_analysis.is_visible
+            else "UNK",
+            (10, 30),
+            cv2.QT_FONT_NORMAL,
+            0.5,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA,
+        )
+
+        # Display Left Counter
+        cv2.putText(
+            image,
+            "LEFT",
+            (95, 12),
+            cv2.QT_FONT_NORMAL,
+            0.5,
+            (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+        cv2.putText(
+            image,
+            str(self.left_arm_analysis.counter)
+            if self.left_arm_analysis.is_visible
+            else "UNK",
+            (100, 30),
+            cv2.QT_FONT_NORMAL,
+            0.5,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA,
+        )
+
+        # Lean back error
+        cv2.putText(
+            image,
+            "Lean-Too-Far-Back",
+            (165, 12),
+            cv2.QT_FONT_NORMAL,
+            0.5,
+            (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+        cv2.putText(
+            image,
+            (
+                ("ERROR" if self.stand_posture == "L" else "CORRECT")
+                + f", {predicted_class}, {class_prediction_probability}"
+            ),
+            (160, 30),
+            cv2.QT_FONT_NORMAL,
+            0.5,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA,
+        )
+
+        # * Visualize angles
+        # Visualize LEFT arm calculated angles
+        if self.left_arm_analysis.is_visible:
+            cv2.putText(
+                image,
+                str(left_bicep_curl_angle),
+                tuple(
+                    np.multiply(
+                        self.left_arm_analysis.elbow, video_dimensions
+                    ).astype(int)
+                ),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                str(left_ground_upper_arm_angle),
+                tuple(
+                    np.multiply(
+                        self.left_arm_analysis.shoulder, video_dimensions
+                    ).astype(int)
+                ),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
+
+        # Visualize RIGHT arm calculated angles
+        if self.right_arm_analysis.is_visible:
+            cv2.putText(
+                image,
+                str(right_bicep_curl_angle),
+                tuple(
+                    np.multiply(
+                        self.right_arm_analysis.elbow, video_dimensions
+                    ).astype(int)
+                ),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                str(right_ground_upper_arm_angle),
+                tuple(
+                    np.multiply(
+                        self.right_arm_analysis.shoulder, video_dimensions
+                    ).astype(int)
+                ),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 0),
+                1,
+                cv2.LINE_AA,
+            )
