@@ -214,4 +214,79 @@ class BicepPoseAnalysis:
         self.peak_contraction_angle = 1000
 
 
+class BicepCurlDetection:
+    ML_MODEL_PATH = "./core/bicep_model/model/KNN_model.pkl"
+    INPUT_SCALER = "./core/bicep_model/model/input_scaler.pkl"
+
+    VISIBILITY_THRESHOLD = 0.65
+
+    # Params for counter
+    STAGE_UP_THRESHOLD = 100
+    STAGE_DOWN_THRESHOLD = 120
+
+    # Params to catch FULL RANGE OF MOTION error
+    PEAK_CONTRACTION_THRESHOLD = 60
+
+    # LOOSE UPPER ARM error detection
+    LOOSE_UPPER_ARM = False
+    LOOSE_UPPER_ARM_ANGLE_THRESHOLD = 40
+
+    # STANDING POSTURE error detection
+    POSTURE_ERROR_THRESHOLD = 0.95
+
+    def __init__(self) -> None:
+        self.init_important_landmarks()
+        self.load_machine_learning_model()
+
+        self.left_arm_analysis = BicepPoseAnalysis(
+            side="left",
+            stage_down_threshold=self.STAGE_DOWN_THRESHOLD,
+            stage_up_threshold=self.STAGE_UP_THRESHOLD,
+            peak_contraction_threshold=self.PEAK_CONTRACTION_THRESHOLD,
+            loose_upper_arm_angle_threshold=self.LOOSE_UPPER_ARM_ANGLE_THRESHOLD,
+            visibility_threshold=self.VISIBILITY_THRESHOLD,
+        )
+
+        self.right_arm_analysis = BicepPoseAnalysis(
+            side="right",
+            stage_down_threshold=self.STAGE_DOWN_THRESHOLD,
+            stage_up_threshold=self.STAGE_UP_THRESHOLD,
+            peak_contraction_threshold=self.PEAK_CONTRACTION_THRESHOLD,
+            loose_upper_arm_angle_threshold=self.LOOSE_UPPER_ARM_ANGLE_THRESHOLD,
+            visibility_threshold=self.VISIBILITY_THRESHOLD,
+        )
+
+        self.stand_posture = 0
+        self.previous_stand_posture = 0
+        self.results = []
+        self.has_error = False
+
+    def init_important_landmarks(self) -> None:
+        """
+        Determine Important landmarks for plank detection
+        """
+
+        self.important_landmarks = [
+            "NOSE",
+            "LEFT_SHOULDER",
+            "RIGHT_SHOULDER",
+            "RIGHT_ELBOW",
+            "LEFT_ELBOW",
+            "RIGHT_WRIST",
+            "LEFT_WRIST",
+            "LEFT_HIP",
+            "RIGHT_HIP",
+        ]
+
+        # Generate all columns of the data frame
+        self.headers = ["label"]  # Label column
+
+        for lm in self.important_landmarks:
+            self.headers += [
+                f"{lm.lower()}_x",
+                f"{lm.lower()}_y",
+                f"{lm.lower()}_z",
+                f"{lm.lower()}_v",
+            ]
+
 
