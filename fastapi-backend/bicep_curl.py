@@ -47,4 +47,39 @@ class BicepPoseAnalysis:
         # Params for peak contraction error detection
         self.peak_contraction_angle = 1000
 
+    def get_joints(self, landmarks) -> bool:
+        """
+        Check for joints' visibility then get joints coordinate
+        """
+        side = self.side.upper()
+
+        # Check visibility
+        joints_visibility = [
+            landmarks[mp_pose.PoseLandmark[f"{side}_SHOULDER"].value].visibility,
+            landmarks[mp_pose.PoseLandmark[f"{side}_ELBOW"].value].visibility,
+            landmarks[mp_pose.PoseLandmark[f"{side}_WRIST"].value].visibility,
+        ]
+
+        is_visible = all(vis > self.visibility_threshold for vis in joints_visibility)
+        self.is_visible = is_visible
+
+        if not is_visible:
+            return self.is_visible
+
+        # Get joints' coordinates
+        self.shoulder = [
+            landmarks[mp_pose.PoseLandmark[f"{side}_SHOULDER"].value].x,
+            landmarks[mp_pose.PoseLandmark[f"{side}_SHOULDER"].value].y,
+        ]
+        self.elbow = [
+            landmarks[mp_pose.PoseLandmark[f"{side}_ELBOW"].value].x,
+            landmarks[mp_pose.PoseLandmark[f"{side}_ELBOW"].value].y,
+        ]
+        self.wrist = [
+            landmarks[mp_pose.PoseLandmark[f"{side}_WRIST"].value].x,
+            landmarks[mp_pose.PoseLandmark[f"{side}_WRIST"].value].y,
+        ]
+
+        return self.is_visible
+
 
