@@ -206,4 +206,44 @@ class SquatDetection:
                 f"{lm.lower()}_v",
             ]
 
+    def load_machine_learning_model(self) -> None:
+        """
+        Load machine learning model
+        """
+        if not self.ML_MODEL_PATH:
+            raise Exception("Cannot found squat model")
+
+        try:
+            with open(self.ML_MODEL_PATH, "rb") as f:
+                self.model = pickle.load(f)
+        except Exception as e:
+            raise Exception(f"Error loading model, {e}")
+
+    def handle_detected_results(self, video_name: str) -> tuple:
+        """
+        Save error frame as evidence
+        """
+        file_name, _ = video_name.split(".")
+        save_folder = "./static/images/"
+        for index, error in enumerate(self.results):
+            try:
+                image_name = f"{file_name}_{index}.jpg"
+                cv2.imwrite(f"{save_folder}/{file_name}_{index}.jpg", error["frame"])
+                self.results[index]["frame"] = image_name
+            except Exception as e:
+                print(f"ERROR cannot save frame: {str(e)}")
+                self.results[index]["frame"] = None
+
+        return self.results, self.counter
+
+    def clear_results(self) -> None:
+        self.current_stage = ""
+        self.previous_stage = {
+            "feet": "",
+            "knee": "",
+        }
+        self.counter = 0
+        self.results = []
+        self.has_error = False
+
 
