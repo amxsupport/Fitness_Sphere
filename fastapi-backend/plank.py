@@ -95,4 +95,125 @@ class PlankDetection:
 
         return self.results, self.previous_stage
 
+    def clear_results(self) -> None:
+        self.previous_stage = "unknown"
+        self.results = []
+        self.has_error = False
 
+    def detect(self, mp_results, image, timestamp) -> None:
+        """
+        Make Plank Errors detection
+        """
+        try:
+            # Extract keypoints from frame for the input
+            row = extract_important_keypoints(mp_results, self.important_landmarks)
+            X = pd.DataFrame([row], columns=self.headers[1:])
+            X = pd.DataFrame(self.input_scaler.transform(X))
+
+            # Make prediction and its probability
+            predicted_class = self.model.predict(X)[0]
+            prediction_probability = self.model.predict_proba(X)[0]
+            if predicted_class == 0:
+                predicted_class = "C"
+            elif predicted_class == 1:
+                predicted_class = "H"
+            else:
+                predicted_class = "L"
+            # Evaluate model prediction
+            if (
+                predicted_class == "C"
+                and prediction_probability[prediction_probability.argmax()]
+                >= self.PREDICTION_PROBABILITY_THRESHOLD
+            ):
+                current_stage = "correct"
+            elif (
+                predicted_class == "L"
+                and prediction_probability[prediction_probability.argmax()]
+                >= self.PREDICTION_PROBABILITY_THRESHOLD
+            ):
+                current_stage = "low back"
+            elif (
+                predicted_class == "H"
+                and prediction_probability[prediction_probability.argmax()]
+                >= self.PREDICTION_PROBABILITY_THRESHOLD
+            ):
+                current_stage = "high back"
+            else:
+                current_stage = "unknown"
+
+            # Stage management for saving results
+            if current_stage in ["low back", "high back"]:
+                # Stage not change
+                if self.previous_stage != current_stage:
+                    self.results.append(
+                        {"stage": current_stage, "frame": image, "timestamp": timestamp}
+                    )
+                    self.has_error = True
+            else:
+                self.has_error = False
+
+            self.previous_stage = current_stage
+
+            landmark_color, connection_color = get_drawing_color(self.has_error)
+            mp_drawing.draw_landmarks(
+                image,
+                mp_results.pose_landmarks,
+                mp_pose.POSE_CONNECTIONS,
+                mp_drawing.DrawingSpec(
+                    color=landmark_color, thickness=2, circle_radius=2
+                ),
+                mp_drawing.DrawingSpec(
+                    color=connection_color, thickness=2, circle_radius=1
+                ),
+            )
+
+            cv2.rectangle(image, (0, 0), (250, 60), (171, 87, 255), -1)
+
+ 
+            cv2.putText(
+                image,
+                "PROB",
+                (15, 12),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                str(
+                    round(prediction_probability[np.argmax(prediction_probability)], 2)
+                ),
+                (10, 40),
+                cv2.QT_FONT_NORMAL,
+                1,
+                (255, 255, 255),
+                2,
+                cv2.LINE_AA,
+            )
+
+            # Display class
+            cv2.putText(
+                image,
+                "CLASS",
+                (95, 12),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                current_stage,
+                (90, 40),
+                cv2.QT_FONT_NORMAL,
+                1,
+                (255, 255, 255),
+                2,
+                cv2.LINE_AA,
+            )
+
+        except Exception as e:
+            print(f"Error while detecting plank errors: {e}")
