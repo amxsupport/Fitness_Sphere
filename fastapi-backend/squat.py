@@ -246,4 +246,188 @@ class SquatDetection:
         self.results = []
         self.has_error = False
 
+    def detect(self, mp_results, image, timestamp) -> None:
+        """
+        Make Squat Errors detection
+        """
+        try:
+            row = extract_important_keypoints(mp_results, self.important_landmarks)
+            X = pd.DataFrame([row], columns=self.headers[1:])
 
+            predicted_class = self.model.predict(X)[0]
+            prediction_probabilities = self.model.predict_proba(X)[0]
+            prediction_probability = round(
+                prediction_probabilities[prediction_probabilities.argmax()], 2
+            )
+            predicted_class = "down" if predicted_class == 0 else "up"
+
+            if (
+                predicted_class == "down"
+                and prediction_probability >= self.PREDICTION_PROB_THRESHOLD
+            ):
+                self.current_stage = "down"
+            elif (
+                self.current_stage == "down"
+                and predicted_class == "up"
+                and prediction_probability >= self.PREDICTION_PROB_THRESHOLD
+            ):
+                self.current_stage = "up"
+                self.counter += 1
+
+            # Analyze squat pose
+            analyzed_results = analyze_foot_knee_placement(
+                results=mp_results,
+                stage=self.current_stage,
+                foot_shoulder_ratio_thresholds=self.FOOT_SHOULDER_RATIO_THRESHOLDS,
+                knee_foot_ratio_thresholds=self.KNEE_FOOT_RATIO_THRESHOLDS,
+                visibility_threshold=self.VISIBILITY_THRESHOLD,
+            )
+
+            foot_placement_evaluation = analyzed_results["foot_placement"]
+            knee_placement_evaluation = analyzed_results["knee_placement"]
+
+            # * Evaluate FEET PLACEMENT error
+            if foot_placement_evaluation == -1:
+                feet_placement = "unknown"
+            elif foot_placement_evaluation == 0:
+                feet_placement = "correct"
+            elif foot_placement_evaluation == 1:
+                feet_placement = "too tight"
+            elif foot_placement_evaluation == 2:
+                feet_placement = "too wide"
+
+            # * Evaluate KNEE PLACEMENT error
+            if (
+                feet_placement == "correct"
+                and knee_placement_evaluation == -1
+                or feet_placement != "correct"
+            ):
+                knee_placement = "unknown"
+            elif knee_placement_evaluation == 0:
+                knee_placement = "correct"
+            elif knee_placement_evaluation == 1:
+                knee_placement = "too tight"
+            elif knee_placement_evaluation == 2:
+                knee_placement = "too wide"
+            # Stage management for saving results
+            # * Feet placement
+            if feet_placement in ["too tight", "too wide"]:
+                # Stage not change
+                if self.previous_stage["feet"] != feet_placement:
+                    self.results.append(
+                        {
+                            "stage": f"feet {feet_placement}",
+                            "frame": image,
+                            "timestamp": timestamp,
+                        }
+                    )
+
+                self.previous_stage["feet"] = feet_placement
+
+            # * Knee placement
+            if knee_placement in ["too tight", "too wide"]:
+                # Stage not change
+                if self.previous_stage["knee"] != knee_placement:
+                    self.results.append(
+                        {
+                            "stage": f"knee {knee_placement}",
+                            "frame": image,
+                            "timestamp": timestamp,
+                        }
+                    )
+
+                self.previous_stage["knee"] = knee_placement
+
+            self.has_error = feet_placement in [
+                "too tight",
+                "too wide",
+            ] or knee_placement in [
+                "too tight",
+                "too wide",
+            ]
+            # Visualization
+            # Draw landmarks and connections
+            landmark_color, connection_color = get_drawing_color(self.has_error)
+            mp_drawing.draw_landmarks(
+                image,
+                mp_results.pose_landmarks,
+                mp_pose.POSE_CONNECTIONS,
+                mp_drawing.DrawingSpec(
+                    color=landmark_color, thickness=2, circle_radius=2
+                ),
+                mp_drawing.DrawingSpec(
+                    color=connection_color, thickness=2, circle_radius=1
+                ),
+            )
+
+            # Status box
+            cv2.rectangle(image, (0, 0), (300, 40), (199,89,255), -1)
+
+            # Display class
+            cv2.putText(
+                image,
+                "COUNT",
+                (10, 12),
+                cv2.QT_FONT_NORMAL,
+                0.3,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                f'{str(self.counter)}, {predicted_class}, {str(prediction_probability)}',
+                (5, 25),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
+
+            # Display Feet and Shoulder width ratio
+            cv2.putText(
+                image,
+                "FEET",
+                (130, 12),
+                cv2.QT_FONT_NORMAL,
+                0.3,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                feet_placement,
+                (125, 25),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
+
+            # Display knee and Shoulder width ratio
+            cv2.putText(
+                image,
+                "KNEE",
+                (225, 12),
+                cv2.QT_FONT_NORMAL,
+                0.3,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                knee_placement,
+                (220, 25),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
+
+        except Exception as e:
+            print(f"Error while detecting squat errors: {e}")
