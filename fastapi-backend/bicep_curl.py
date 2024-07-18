@@ -289,4 +289,63 @@ class BicepCurlDetection:
                 f"{lm.lower()}_v",
             ]
 
+    def load_machine_learning_model(self) -> None:
+        """
+        Load machine learning model
+        """
+        if not self.ML_MODEL_PATH:
+            print("Cannot found plank model")
+
+        try:
+            with open(self.ML_MODEL_PATH, "rb") as f:
+                self.model = pickle.load(f)
+
+            with open(self.INPUT_SCALER, "rb") as f2:
+                self.input_scaler = pickle.load(f2)
+        except Exception as e:
+            print(f"Error loading model, {e}")
+
+    def handle_detected_results(self, video_name: str) -> tuple:
+        """
+        Save frame as evidence
+        """
+        file_name, _ = video_name.split(".")
+        save_folder = "./static/images/"
+        for index, error in enumerate(self.results):
+            try:
+                image_name = f"{file_name}_{index}.jpg"
+                cv2.imwrite(f"{save_folder}/{file_name}_{index}.jpg", error["frame"])
+                self.results[index]["frame"] = image_name
+            except Exception as e:
+                print(f"ERROR cannot save frame: {str(e)}")
+                self.results[index]["frame"] = None
+
+        return self.results, {
+            "left_counter": self.left_arm_analysis.get_counter(),
+            "right_counter": self.right_arm_analysis.get_counter(),
+        }
+
+    def clear_results(self) -> None:
+        self.stand_posture = 0
+        self.previous_stand_posture = 0
+        self.results = []
+        self.has_error = False
+
+        self.right_arm_analysis.reset()
+        self.left_arm_analysis.reset()
+
+    def detect(
+        self,
+        mp_results,
+        image,
+        timestamp: int,
+    ) -> None:
+        self.has_error = False
+
+        try:
+            self._extracted_from_detect_17(image, mp_results, timestamp)
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+
 
