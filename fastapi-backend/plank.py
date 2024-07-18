@@ -61,4 +61,38 @@ class PlankDetection:
                 f"{lm.lower()}_v",
             ]
 
+    def load_machine_learning_model(self) -> None:
+        """
+        Load machine learning model
+        """
+        # print("loading plank")
+        if not self.ML_MODEL_PATH or not self.INPUT_SCALER_PATH:
+            print("Cannot found plank model file or input scaler file")
+
+        try:
+            with open(self.ML_MODEL_PATH, "rb") as f:
+                self.model = pickle.load(f)
+            with open(self.INPUT_SCALER_PATH, "rb") as f2:
+                self.input_scaler = pickle.load(f2)
+            # print("done loading")
+        except Exception as e:
+            print(f"Error loading model, {e}")
+
+    def handle_detected_results(self, video_name: str) -> None:
+        """
+        Save frame as evidence
+        """
+        file_name, _ = video_name.split(".")
+        save_folder = "./static/images/"
+        for index, error in enumerate(self.results):
+            try:
+                image_name = f"{file_name}_{index}.jpg"
+                cv2.imwrite(f"{save_folder}/{file_name}_{index}.jpg", error["frame"])
+                self.results[index]["frame"] = image_name
+            except Exception as e:
+                print(f"ERROR cannot save frame: {str(e)}")
+                self.results[index]["frame"] = None
+
+        return self.results, self.previous_stage
+
 
