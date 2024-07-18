@@ -153,4 +153,57 @@ def analyze_foot_knee_placement(
     return analyzed_results
 
 
+class SquatDetection:
+    ML_MODEL_PATH = "./core/squat_model/model/LR_model.pkl"
+
+    PREDICTION_PROB_THRESHOLD = 0.6
+    VISIBILITY_THRESHOLD = 0.6
+    FOOT_SHOULDER_RATIO_THRESHOLDS = [1.2, 2.8]
+    KNEE_FOOT_RATIO_THRESHOLDS = {
+        "up": [0.5, 1.0],
+        "middle": [0.7, 1.0],
+        "down": [0.7, 1.1],
+    }
+
+    def __init__(self) -> None:
+        self.init_important_landmarks()
+        self.load_machine_learning_model()
+
+        self.current_stage = ""
+        self.previous_stage = {
+            "feet": "",
+            "knee": "",
+        }
+        self.counter = 0
+        self.results = []
+        self.has_error = False
+
+    def init_important_landmarks(self) -> None:
+        """
+        Determine Important landmarks for squat detection
+        """
+
+        self.important_landmarks = [
+            "NOSE",
+            "LEFT_SHOULDER",
+            "RIGHT_SHOULDER",
+            "LEFT_HIP",
+            "RIGHT_HIP",
+            "LEFT_KNEE",
+            "RIGHT_KNEE",
+            "LEFT_ANKLE",
+            "RIGHT_ANKLE",
+        ]
+
+        # Generate all columns of the data frame
+        self.headers = ["label"]  # Label column
+
+        for lm in self.important_landmarks:
+            self.headers += [
+                f"{lm.lower()}_x",
+                f"{lm.lower()}_y",
+                f"{lm.lower()}_z",
+                f"{lm.lower()}_v",
+            ]
+
 
