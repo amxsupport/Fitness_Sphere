@@ -160,6 +160,7 @@ def analyze_knee_angle(
 
     return results
 
+
 class LungeDetection:
     STAGE_ML_MODEL_PATH = "./core/lunge_model/model/sklearn/stage_LR_model.pkl"
     ERR_ML_MODEL_PATH = "./core/lunge_model/model/sklearn/err_LR_model.pkl"
@@ -232,4 +233,207 @@ class LungeDetection:
         except Exception as e:
             print(f"Error loading model, {e}")
 
+    def handle_detected_results(self, video_name: str) -> tuple:
+        """
+        Save frame as evidence
+        """
+        file_name, _ = video_name.split(".")
+        save_folder = "./static/images/"
+        for index, error in enumerate(self.results):
+            try:
+                image_name = f"{file_name}_{index}.jpg"
+                cv2.imwrite(f"{save_folder}/{file_name}_{index}.jpg", error["frame"])
+                self.results[index]["frame"] = image_name
+            except Exception as e:
+                print("ERROR cannot save frame: " + str(e))
+                self.results[index]["frame"] = None
 
+        return self.results, self.counter
+
+    def clear_results(self) -> None:
+        self.results = []
+        self.counter = 0
+        self.current_stage = ""
+        self.has_error = False
+
+    def detect(self, mp_results, image, timestamp) -> None:
+        """
+        Make Lunge Errors detection
+        """
+        try:
+            video_dimensions = [image.shape[1], image.shape[0]]
+
+            # * Model prediction for LUNGE counter
+            # Extract keypoints from frame for the input
+            row = extract_important_keypoints(mp_results, self.important_landmarks)
+            X = pd.DataFrame([row], columns=self.headers[1:])
+            X = pd.DataFrame(self.input_scaler.transform(X))
+
+            # Make prediction and its probability
+            stage_predicted_class = self.stage_model.predict(X)[0]
+            stage_prediction_probabilities = self.stage_model.predict_proba(X)[0]
+            stage_prediction_probability = round(
+                stage_prediction_probabilities[stage_prediction_probabilities.argmax()],
+                2,
+            )
+
+            # Evaluate stage prediction for counter
+            if (
+                stage_predicted_class == "I"
+                and stage_prediction_probability >= self.PREDICTION_PROB_THRESHOLD
+            ):
+                self.current_stage = "init"
+            elif (
+                stage_predicted_class == "M"
+                and stage_prediction_probability >= self.PREDICTION_PROB_THRESHOLD
+            ):
+                self.current_stage = "mid"
+            elif (
+                stage_predicted_class == "D"
+                and stage_prediction_probability >= self.PREDICTION_PROB_THRESHOLD
+            ):
+                if self.current_stage in ["init", "mid"]:
+                    self.counter += 1
+
+                self.current_stage = "down"
+
+            # Check out errors from a rep to reduce repeated warning
+            errors_from_this_rep = map(
+                lambda el: el["stage"],
+                filter(lambda el: el["counter"] == self.counter, self.results),
+            )
+
+            # Analyze lunge pose
+            # Knee over toe
+            k_o_t_error = None
+            err_predicted_class = None
+            err_prediction_probabilities = None
+            err_prediction_probability = None
+            if self.current_stage == "down":
+                err_predicted_class = self.err_model.predict(X)[0]
+                err_prediction_probabilities = self.err_model.predict_proba(X)[0]
+                err_prediction_probability = round(
+                    err_prediction_probabilities[err_prediction_probabilities.argmax()],
+                    2,
+                )
+
+                if (
+                    err_predicted_class == "L"
+                    and err_prediction_probability >= self.PREDICTION_PROB_THRESHOLD
+                ):
+                    k_o_t_error = "Incorrect"
+                    self.has_error = True
+
+                    # Limit save error frames saved in a rep
+                    if (
+                        len(self.results) == 0
+                        or "knee over toe" not in errors_from_this_rep
+                    ):
+                        self.results.append(
+                            {
+                                "stage": f"knee over toe",
+                                "frame": image,
+                                "timestamp": timestamp,
+                                "counter": self.counter,
+                            }
+                        )
+
+                elif (
+                    err_predicted_class == "C"
+                    and err_prediction_probability >= self.PREDICTION_PROB_THRESHOLD
+                ):
+                    k_o_t_error = "Correct"
+                    self.has_error = False
+            else:
+                self.has_error = False
+
+            # Analyze lunge pose
+            # * Knee angle
+            analyzed_results = analyze_knee_angle(
+                mp_results=mp_results,
+                stage=self.current_stage,
+                angle_thresholds=self.KNEE_ANGLE_THRESHOLD,
+                knee_over_toe=(k_o_t_error == "Incorrect"),
+                draw_to_image=(image, video_dimensions),
+            )
+
+            # Stage management for saving results
+            self.has_error = (
+                analyzed_results["error"] if not self.has_error else self.has_error
+            )
+            if analyzed_results["error"]:
+                # Limit save error frames saved in a rep
+                if len(self.results) == 0 or "knee angle" not in errors_from_this_rep:
+                    self.results.append(
+                        {
+                            "stage": f"knee angle",
+                            "frame": image,
+                            "timestamp": timestamp,
+                            "counter": self.counter,
+                        }
+                    )
+
+            # Visualization
+            # Draw landmarks and connections
+            landmark_color, connection_color = get_drawing_color(self.has_error)
+            mp_drawing.draw_landmarks(
+                image,
+                mp_results.pose_landmarks,
+                mp_pose.POSE_CONNECTIONS,
+                mp_drawing.DrawingSpec(
+                    color=landmark_color, thickness=2, circle_radius=2
+                ),
+                mp_drawing.DrawingSpec(
+                    color=connection_color, thickness=2, circle_radius=1
+                ),
+            )
+
+            # Status box
+            cv2.rectangle(image, (0, 0), (325, 40), (245, 117, 16), -1)
+
+            # Display Stage prediction for count
+            cv2.putText(
+                image,
+                "COUNT",
+                (10, 12),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                f'{str(self.counter)}, {stage_predicted_class.split(" ")[0]}, {str(stage_prediction_probability)}',
+                (5, 30),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
+
+            # Display KNEE_OVER_TOE error prediction
+            cv2.putText(
+                image,
+                "KNEE_OVER_TOE",
+                (145, 12),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                image,
+                f"{err_predicted_class}, {err_prediction_probability}, {k_o_t_error}",
+                (135, 30),
+                cv2.QT_FONT_NORMAL,
+                0.5,
+                (255, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
+
+        except Exception as e:
+            print(f"Error while detecting lunge errors: {e}")
