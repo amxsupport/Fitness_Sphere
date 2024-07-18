@@ -160,4 +160,76 @@ def analyze_knee_angle(
 
     return results
 
+class LungeDetection:
+    STAGE_ML_MODEL_PATH = "./core/lunge_model/model/sklearn/stage_LR_model.pkl"
+    ERR_ML_MODEL_PATH = "./core/lunge_model/model/sklearn/err_LR_model.pkl"
+    INPUT_SCALER_PATH = "./core/lunge_model/model/input_scaler.pkl"
+
+    PREDICTION_PROB_THRESHOLD = 0.8
+    KNEE_ANGLE_THRESHOLD = [60, 125]
+
+    def __init__(self) -> None:
+        self.init_important_landmarks()
+        self.load_machine_learning_model()
+
+        self.current_stage = ""
+        self.counter = 0
+        self.results = []
+        self.has_error = False
+
+    def init_important_landmarks(self) -> None:
+        """
+        Determine Important landmarks for lunge detection
+        """
+
+        self.important_landmarks = [
+            "NOSE",
+            "LEFT_SHOULDER",
+            "RIGHT_SHOULDER",
+            "LEFT_HIP",
+            "RIGHT_HIP",
+            "LEFT_KNEE",
+            "RIGHT_KNEE",
+            "LEFT_ANKLE",
+            "RIGHT_ANKLE",
+            "LEFT_HEEL",
+            "RIGHT_HEEL",
+            "LEFT_FOOT_INDEX",
+            "RIGHT_FOOT_INDEX",
+        ]
+
+        # Generate all columns of the data frame
+        self.headers = ["label"]  # Label column
+
+        for lm in self.important_landmarks:
+            self.headers += [
+                f"{lm.lower()}_x",
+                f"{lm.lower()}_y",
+                f"{lm.lower()}_z",
+                f"{lm.lower()}_v",
+            ]
+
+    def load_machine_learning_model(self) -> None:
+        """
+        Load machine learning model
+        """
+        if (
+            not self.STAGE_ML_MODEL_PATH
+            or not self.INPUT_SCALER_PATH
+            or not self.ERR_ML_MODEL_PATH
+        ):
+            print("Cannot found lunge files for prediction")
+
+        try:
+            with open(self.ERR_ML_MODEL_PATH, "rb") as f:
+                self.err_model = pickle.load(f)
+
+            with open(self.STAGE_ML_MODEL_PATH, "rb") as f:
+                self.stage_model = pickle.load(f)
+
+            with open(self.INPUT_SCALER_PATH, "rb") as f2:
+                self.input_scaler = pickle.load(f2)
+        except Exception as e:
+            print(f"Error loading model, {e}")
+
 
