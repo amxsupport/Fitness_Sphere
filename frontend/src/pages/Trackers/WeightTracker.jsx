@@ -85,6 +85,7 @@ const WeightTracker = () => {
         setMealData({ meal: "", food: "", quantity: "" });
         setMessage("");
     };
+
     return (
         <div className="bg-blue-50">
             <ToastContainer
