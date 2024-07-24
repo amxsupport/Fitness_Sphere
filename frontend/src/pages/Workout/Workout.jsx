@@ -75,4 +75,70 @@ const Workout = () => {
         //     });
     };
 
+    // Capture and send a frame every second
+    useEffect(() => {
+        let interval = null;
+
+        if (capturing) {
+            interval = setInterval(() => {
+                captureAndSendFrame();
+                // console.log("capturing");
+            }, 1000);
+        } else if (interval) {
+            clearInterval(interval);
+        }
+
+        return () => clearInterval(interval);
+    }, [capturing]);
+
+    // Start the interview - toggle full screen, read the first question and start capturing
+    const startInterview = async () => {
+        // toggleFullScreen();
+        // if (questions.length > 0) {
+        //     setCurrentQuestionIndex(0);
+        //     setTimeout(() => {
+        //         speakQuestion(questions[0]); // Read the first question
+        //     }, 2000);
+        //     // speakQuestion(questions[0]);
+        // }
+
+        setShowNext(true);
+        startRecording();
+
+        // code to start webcam and capture frames
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+            });
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+                setCapturing(true);
+            }
+        } catch (error) {
+            console.error("Error accessing webcam:", error);
+        }
+    };
+
+    // Stop the interview - stop capturing, reset the interview type and current question index
+    const stopInterview = () => {
+        if (videoRef.current) {
+            const stream = videoRef.current.srcObject;
+            const tracks = stream.getTracks();
+
+            tracks.forEach((track) => {
+                track.stop();
+            });
+
+            videoRef.current.srcObject = null;
+        }
+
+        setCapturing(false);
+        setInterviewType("");
+        setCurrentQuestionIndex(0);
+        setShowAns(false);
+        setShowNext(false);
+        // toggleFullScreen();
+        stopRecording();
+    };
+
 
