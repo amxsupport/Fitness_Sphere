@@ -231,4 +231,205 @@ const Posture = () => {
                     )}
                 </div>
 
+                <div className="md:w-1/2 flex flex-col gap-6 justify-between">
+                    <div className="grid grid-cols-2 gap-4 h-full">
+                        {/* Workout to choose from */}
+                        {workouts.map((workout, index) => {
+                            return (
+                                <div
+                                    key={index}
+                                    className={`${
+                                        selectedWorkout === workout.value &&
+                                        result &&
+                                        video
+                                            ? "bg-[#c759ff] text-white"
+                                            : "bg-gray-200 hover:bg-gray-100 text-gray-600"
+                                    } font-semibold py-2 px-4 border border-dashed border-gray-400 rounded shadow w-full h-full flex items-center justify-center`}
+                                >
+                                    {workout.name}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {/* Submit button */}
+                    {/* <button
+                        onClick={handleSubmit}
+                        className='bg-[#c759ff] hover:bg-violet-700 text-white font-bold py-2 px-4 rounded-lg'>
+                        Submit
+                    </button> */}
+                </div>
+            </div>
 
+            {loading ? (
+                <div className="flex flex-col items-center justify-center gap-4">
+                    <h3 className="text-2xl font-bold">Processing...</h3>
+                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+                </div>
+            ) : result && result?.file_name ? (
+                <div className="flex flex-col md:flex-row items-start gap-8 w-full border border-gray-300 border-solid p-2 md:p-8 rounded-2xl relative">
+                    {/* Video */}
+                    <div className="w-full md:w-2/3">
+                        {/* <VideoPlayer url={result.file_name} /> */}
+                        {/* <ReactPlayer url={result.file_name} /> */}
+                        {/* <video
+                                    className="w-full h-full"
+                                    src={"https://8b6b-2402-3a80-4190-beee-98ef-b30e-7fb3-6cb4.ngrok-free.app" + result.file_name}
+                                    controls
+                                    // start video from 5 seconds
+                                    ref={videoRef}
+                                /> */}
+                        <ReactPlayer
+                            url={
+                                "https://8b6b-2402-3a80-4190-beee-98ef-b30e-7fb3-6cb4.ngrok-free.app" +
+                                result.file_name
+                            }
+                            controls
+                            muted
+                            width="100%"
+                            height="100%"
+                            // ref={videoRef}
+                            ref={videoRef}
+                        />
+                    </div>
+
+                    {/* Horizontali scrollable slider having multiple images */}
+                    <div className="md:absolute top-0 right-0 md:w-1/3 p-2 md:p-8 h-full">
+                        <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide h-full">
+                            {result?.details?.map((obj, index) => {
+                                return (
+                                    <div
+                                        key={index}
+                                        onClick={() => {
+                                            console.log(obj.timestamp);
+                                            setTimestamp(obj.timestamp);
+                                        }}
+                                        className={`flex flex-col gap-4 rounded-lg shadow-lg w-full border cursor-pointer`}
+                                    >
+                                        <div
+                                            key={index}
+                                            className="rounded-lg shadow-lg w-full max-h-60 flex items-center justify-center overflow-hidden"
+                                        >
+                                            <img
+                                                src={
+                                                    "https://8b6b-2402-3a80-4190-beee-98ef-b30e-7fb3-6cb4.ngrok-free.app" +
+                                                    obj?.frame
+                                                }
+                                                alt={obj.stage}
+                                                className="w-full aspect-video"
+                                            />
+
+                                            {/* <iframe
+                                                            src={"https://8b6b-2402-3a80-4190-beee-98ef-b30e-7fb3-6cb4.ngrok-free.app" + obj?.frame}
+                                                            className='w-full h-full'
+                                                        /> */}
+                                            {/* <ImageDisplay url={obj?.frame} alt={obj?.stage} /> */}
+                                        </div>
+
+                                        <div className="flex flex-col justify-between w-full p-4">
+                                            <p
+                                                className="text-sm font-bold w-full"
+                                                style={{
+                                                    marginBlock: "0",
+                                                }}
+                                            >
+                                                {obj?.stage}
+                                            </p>
+                                            <p
+                                                style={{
+                                                    marginBlock: "0",
+                                                }}
+                                                className="text-gray-500 text-sm"
+                                            >
+                                                {obj?.timestamp}
+                                                <sup>th</sup> second
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <></>
+            )}
+        </section>
+    );
+};
+
+export default Posture;
+
+// const VideoPlayer = ({ url }) => {
+
+//     const [video, setVideo] = useState(null);
+
+//     //fetch video from video url and set it to video state
+//     useEffect(()=>{
+//         axios.get(url, {
+//             headers: {
+//                 "ngrok-skip-browser-warning": "69420",
+//             },
+//         })
+//         .then(res=>{
+//             console.log(res);
+//             setVideo(res.data);
+//         })
+//         .catch(err=>{
+//             console.log(err);
+//         })
+//     })
+//     return (
+//         <div className='relative w-full h-full'>
+//             {
+//                 video ? (
+//                     <video
+//                         className='w-full h-full'
+//                         src={URL.createObjectURL(video)}
+//                         controls
+//                     />
+//                 ) : (
+//                     <div className='flex items-center justify-center w-full h-full'>
+//                         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+//                     </div>
+//                 )
+//             }
+//         </div>
+//     )
+// }
+
+// const ImageDisplay = ({ url, alt }) => {
+//     const [image, setImage] = useState(null);
+
+//     //fetch image from image url and set it to image state
+//     useEffect(()=>{
+//         axios.get(url, {
+//             headers: {
+//                 "ngrok-skip-browser-warning": "6024",
+//             },
+//         })
+//         .then(res=>{
+//             console.log(res);
+//             setImage(res.data);
+//         })
+//         .catch(err=>{
+//             console.log(err);
+//         })
+//     })
+//     return (
+//         <div className='relative w-full h-full'>
+//             {
+//                 image ? (
+//                     <img
+//                         src={`data:image/jfif;base64, ${image}`}
+//                         alt={alt}
+//                         className='w-full h-full object-cover'
+//                     />
+//                 ) : (
+//                     <div className='flex items-center justify-center w-full h-full'>
+//                         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+//                     </div>
+//                 )
+//             }
+//         </div>
+//     )
+// }
