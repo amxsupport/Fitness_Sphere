@@ -168,4 +168,61 @@ const CaloriesBurnt = () => {
             },
         ],
     });
+    /*useEffect(() => {
+    fetch("https://datahack-backend.onrender.com/api/info/getcalories",{
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: localStorage.getItem("email")
+      }),
+    })
+      .then(res => res.json())
+      .then(res => res.data)
+      .then(res => setHourData({...hourData, data: res}))
+      .catch(err =>console.log(err))
+    },[]);
+  console.log(hourData)*/
+    return (
+        <div className="bg-violet-50 -mt-4">
+            <Link to="/chat/diet">
+                <button
+                    className="fixed bottom-20 right-6 z-50 border-none outline-none bg-violet-500 text-white cursor-pointer p-4 rounded animate-bounce hover:scale-105 hover:bg-violet-600"
+                    title="Chat with ExerciseBot"
+                >
+                    <AiFillRobot />
+                </button>
+            </Link>
+            <div className="chartMenu">
+                <p>Hourly Calories Burnt</p>
+            </div>
+            <div className="chartCard">
+                <div className="chartBox border-2 border-violet-900 border-solid shadow-md shadow-violet-200">
+                    <LineChart id="myChart" chartData={hourData} />
+                </div>
+            </div>
+            <hr />
+            <div className="chartMenu">
+                <p>Weekly Calories Burnt</p>
+            </div>
+            <div className="chartCard">
+                <div className="chartBox border-2 border-violet-900 border-solid shadow-md shadow-violet-200">
+                    <BarChart id="myChart" chartData={weekData} />
+                </div>
+            </div>
+            <div className="flex justify-center text-center">
+                <button
+                    className="w-auto text-white bg-violet-500 hover:scale-105 ease-in-out duration-300 p-4 m-4 rounded-lg shadow-md shadow-violet-700"
+                    onClick={() => {
+                        navigate("/exercise");
+                    }}
+                >
+                    Start Workout
+                </button>
+            </div>
+        </div>
+    );
+};
 
+export default CaloriesBurnt;
