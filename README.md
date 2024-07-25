@@ -1,4 +1,5 @@
-# <p align="center"> ![Logo](https://https://i.imgur.com/7fW4FvU.png) </p>
+# <p align="center"> ![Logo](https://i.imgur.com/7fW4FvU.png) </p>
+
 # Fitness Sphere
 FitSphere is an estimation system leveraging Computer Vision and Machine Learning to enhance the field of sports and fitness.
 
