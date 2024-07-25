@@ -13,11 +13,27 @@ FitSphere is an estimation system leveraging Computer Vision and Machine Learnin
 FitSphere aims to provide accurate performance metrics and analysis for sports and fitness activities using advanced computer vision and machine learning techniques.
 To start using this web application, visit [Fitness_Sphere.app](https://fitsphere.vercel.app).
 
-## Features
-- User authentication and profile management
-- Media upload (video/image) for analysis
-- Real-time or batch processing of media
-- Visualization of results and performance metrics
+## FitSphere Key Features
+### Exercise Recognition:
+- Fitness Sphere leverages OpenCV and deep learning to automatically identify exercises such as Bench Press, Push-Up, Bicep Curl, Lateral Raise, Shoulder Press, and Squat without any manual input.
+
+### Rep and Set Counting:
+- The system accurately counts repetitions and sets using precise angle thresholds, enabling users to adhere to their workout plans with precision.
+
+### Progress Tracking:
+- Fitness Sphere collects and stores comprehensive user data, including sets, reps, weight lifted, BMI, and heart rate. It provides an intuitive data analysis dashboard for monitoring progress and identifying areas for improvement.
+
+### Exercise Recommendations:
+- Based on collected data, Fitness Sphere offers personalized exercise recommendations tailored to users' fitness goals.
+
+### Warning System:
+- Fitness Sphere monitors exercise form in real-time and provides immediate alerts if improper form is detected, reducing the risk of injury and ensuring workout effectiveness.
+
+### App Integration:
+- The system is designed for integration with mobile apps, offering real-time feedback and data accessibility across multiple devices, including potential connectivity with wearables.
+
+### Web and Mobile Responsive:
+- Fitness Sphere is optimized for seamless performance on both web and mobile platforms, ensuring a consistent user experience.
 
 ## Installation
 ### Backend
