@@ -35,7 +35,7 @@ To start using this web application, visit [Fitness_Sphere.app](https://fitspher
 
 ## Demo
 
-https://github.com/amxsupport/Fitness_Sphere/blob/master/fastapi-backend/video1
+https://github.com/amxsupport/Fitness_Sphere/assets/75872913/04d76e6a-a3c4-413a-8c34-7d10a914771e
 
 https://github.com/amxsupport/Fitness_Sphere/assets/75872913/6bba28bd-1e3b-4657-aa5d-0d5f8db72a2e
 
