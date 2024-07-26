@@ -48,7 +48,7 @@ export default function Navbar(props) {
                                 to="/"
                                 className="text-violet-600 text-md text-xl hover:text-violet-600 font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap"
                             >
-                                FitSphere
+                                Fitness Sphere
                             </Link>
                         </div>
                         <button
