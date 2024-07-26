@@ -6,6 +6,7 @@ FitSphere is an estimation system leveraging Computer Vision and Machine Learnin
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
+- [Demo](#demo)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
@@ -31,6 +32,9 @@ To start using this web application, visit [Fitness_Sphere.app](https://fitspher
 - The system is designed for integration with mobile apps, offering real-time feedback and data accessibility across multiple devices, including potential connectivity with wearables.
 ##### Web and Mobile Responsive:
 - Fitness Sphere is optimized for seamless performance on both web and mobile platforms, ensuring a consistent user experience.
+
+## Demo
+
 
 ## Installation
 ### Backend
