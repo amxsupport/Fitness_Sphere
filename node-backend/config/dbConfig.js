@@ -1,17 +1,23 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-mongoose.connect("mongodb://localhost:27017/fitsphereDb");
-// mongodb + srv://admin:admin@cluster0.qs1hl6j.mongodb.net/
+const connectDB = async () => {
+    try {
+        const mongoUrl = process.env.NODE_ENV === 'production'
+            ? process.env.MONGO_URL
+            : 'mongodb://localhost:27017/fitsphereDb';
 
-//mongoose.connect(process.env['mongo_url');
+        await mongoose.connect(mongoUrl, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log('MongoDB connected successfully');
+    } catch (error) {
+        console.error('MongoDB Connection Failed:', error.message);
+        process.exit(1);
+    }
+};
 
-const db = mongoose.connection;
+connectDB();
 
-db.on("connected", () => {
-    console.log("MongoDb connected successfully");
-});
-
-db.on("error", () => {
-    console.log("MongoDb Connection Failed");
-});
+module.exports = mongoose.connection;
