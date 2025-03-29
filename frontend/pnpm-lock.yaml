@@ -9,31 +9,31 @@ importers:
   .:
     dependencies:
       '@dotlottie/player-component':
-        specifier: ^2.7.0
+        specifier: ^2.7.12
         version: 2.7.12
       '@emailjs/browser':
-        specifier: ^3.10.0
+        specifier: ^3.12.1
         version: 3.12.1
       '@headlessui/react':
-        specifier: ^1.7.7
+        specifier: ^1.7.19
         version: 1.7.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/material':
-        specifier: ^5.11.5
+        specifier: ^5.16.7
         version: 5.16.7(@emotion/react@11.13.0(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@popperjs/core':
-        specifier: ^2.11.6
+        specifier: ^2.11.8
         version: 2.11.8
       axios:
-        specifier: ^1.6.0
+        specifier: ^1.7.4
         version: 1.7.4
       chart.js:
-        specifier: ^4.1.2
+        specifier: ^4.4.3
         version: 4.4.3
       daisyui:
-        specifier: ^2.47.0
+        specifier: ^2.52.0
         version: 2.52.0(autoprefixer@10.4.20(postcss@8.4.41))(postcss@8.4.41)
       dotenv:
-        specifier: ^16.0.3
+        specifier: ^16.4.5
         version: 16.4.5
       http-proxy-middleware:
         specifier: ^2.0.6
@@ -48,16 +48,16 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0(chart.js@4.4.3)(react@18.3.1)
       react-chatbot-kit:
-        specifier: ^2.1.2
+        specifier: ^2.2.2
         version: 2.2.2
       react-datepicker:
-        specifier: ^4.11.0
+        specifier: ^4.25.0
         version: 4.25.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-icons:
-        specifier: ^4.7.1
+        specifier: ^4.12.0
         version: 4.12.0(react@18.3.1)
       react-loading-skeleton:
-        specifier: ^3.1.0
+        specifier: ^3.4.0
         version: 3.4.0(react@18.3.1)
       react-player:
         specifier: 2.9.0
@@ -69,68 +69,68 @@ importers:
         specifier: ^3.2.23
         version: 3.2.23
       react-router-dom:
-        specifier: ^6.6.1
+        specifier: ^6.26.0
         version: 6.26.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-select:
-        specifier: ^5.7.7
+        specifier: ^5.8.0
         version: 5.8.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-toastify:
-        specifier: ^9.1.2
+        specifier: ^9.1.3
         version: 9.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       reacticons:
         specifier: ^0.0.1
         version: 0.0.1
       reactstrap:
-        specifier: ^9.1.5
+        specifier: ^9.2.2
         version: 9.2.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       typewriter-effect:
-        specifier: ^2.19.0
+        specifier: ^2.21.0
         version: 2.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       universal-cookie:
         specifier: ^4.0.4
         version: 4.0.4
       workbox-core:
-        specifier: ^6.5.4
+        specifier: ^6.6.1
         version: 6.6.1
       workbox-expiration:
-        specifier: ^6.5.4
+        specifier: ^6.6.1
         version: 6.6.1
       workbox-precaching:
-        specifier: ^6.5.4
+        specifier: ^6.6.1
         version: 6.6.1
       workbox-routing:
-        specifier: ^6.5.4
+        specifier: ^6.6.1
         version: 6.6.1
       workbox-strategies:
-        specifier: ^6.5.4
+        specifier: ^6.6.1
         version: 6.6.1
     devDependencies:
       '@types/react':
-        specifier: ^18.0.15
+        specifier: ^18.3.3
         version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.0.6
+        specifier: ^18.3.0
         version: 18.3.0
       '@vitejs/plugin-react':
-        specifier: ^2.0.0
+        specifier: ^2.2.0
         version: 2.2.0(vite@3.2.10(@types/node@22.3.0))
       autoprefixer:
-        specifier: ^10.4.13
+        specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.41)
       postcss:
-        specifier: ^8.4.21
+        specifier: ^8.4.41
         version: 8.4.41
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       tailwindcss:
         specifier: ^3.4.10
         version: 3.4.10
       typescript:
-        specifier: ^4.7.4
+        specifier: ^4.9.5
         version: 4.9.5
       typescript-language-server:
         specifier: ^0.11.2
@@ -754,8 +754,8 @@ packages:
     resolution: {integrity: sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==}
     engines: {node: '>= 6'}
 
-  caniuse-lite@1.0.30001651:
-    resolution: {integrity: sha512-9Cf+Xv1jJNe1xPZLGuUXLNkE1BoDkqRqYyFJ9TDYSqhduqA4hu4oR9HluGoWYQC/aj8WHjsGVV+bwkh0+tegRg==}
+  caniuse-lite@1.0.30001707:
+    resolution: {integrity: sha512-3qtRjw/HQSMlDWf+X79N206fepf4SOOU6SQLMaq/0KkZLmSjPxAkBOQQ+FxbHKfHmYLZFfdWsO3KA90ceHPSnw==}
 
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
@@ -2664,7 +2664,7 @@ snapshots:
   autoprefixer@10.4.20(postcss@8.4.41):
     dependencies:
       browserslist: 4.23.3
-      caniuse-lite: 1.0.30001651
+      caniuse-lite: 1.0.30001707
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.1
@@ -2712,7 +2712,7 @@ snapshots:
 
   browserslist@4.23.3:
     dependencies:
-      caniuse-lite: 1.0.30001651
+      caniuse-lite: 1.0.30001707
       electron-to-chromium: 1.5.7
       node-releases: 2.0.18
       update-browserslist-db: 1.1.0(browserslist@4.23.3)
@@ -2721,7 +2721,7 @@ snapshots:
 
   camelcase-css@2.0.1: {}
 
-  caniuse-lite@1.0.30001651: {}
+  caniuse-lite@1.0.30001707: {}
 
   chalk@2.4.2:
     dependencies:

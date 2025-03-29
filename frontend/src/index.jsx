@@ -4,13 +4,8 @@ import App from './App.jsx'
 import './index.css'
 import '@dotlottie/player-component';
 
-// ReactDOM.createRoot(document.getElementById('root')).render(
-//  <App/>
-// )
-
-ReactDOM.render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );

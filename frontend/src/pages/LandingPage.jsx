@@ -1,14 +1,14 @@
-import "/src/assets/jquery.js";
-import "/src/assets/Home.css";
-import "/src/assets/ns.css";
-import "/src/assets/ns.js";
+import "../assets/jquery.js";
+import "../assets/Home.css";
+import "../assets/ns.css";
+import "../assets/ns.js";
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // components
 import { AiOutlineMenu } from "react-icons/ai";
 import IndexDropdown from "../components/IndexDropdown";
 
-import Web from "/src/assets/logo/Web.png";
+import Web from "../assets/logo/Web.png";
 export default function LandingPage() {
     useEffect(() => {
         Notification.requestPermission().then(function (permission) {
