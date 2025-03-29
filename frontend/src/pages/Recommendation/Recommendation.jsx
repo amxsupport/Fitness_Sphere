@@ -1,4 +1,4 @@
-ximport React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import TypewriterText from "../../components/TypewriterText";
 import { data, explanation } from "../../sampleResponse";

@@ -1,19 +1,19 @@
 const testimonials = [
   {
     user: "amksa abdellaziz",
-    message: "fdkl ljfdlksf jldksjf jsdfkj klfjoisdj flkjflk j foij sfls",\
+    message: "fdkl ljfdlksf jldksjf jsdfkj klfjoisdj flkjflk j foij sfls",
     img: "",
     designation: "Web Developer"
   },
   {
     user: "amksa abdellaziz",
-    message: "fdkl ljfdlksf jldksjf jsdfkj klfjoisdj flkjflk j foij sfls",\
+    message: "fdkl ljfdlksf jldksjf jsdfkj klfjoisdj flkjflk j foij sfls",
     img: "",
     designation: "Web Developer"
   },
   {
     user: "amksa abdellaziz",
-    message: "fdkl ljfdlksf jldksjf jsdfkj klfjoisdj flkjflk j foij sfls",\
+    message: "fdkl ljfdlksf jldksjf jsdfkj klfjoisdj flkjflk j foij sfls",
     img: "",
     designation: "Web Developer"
   },

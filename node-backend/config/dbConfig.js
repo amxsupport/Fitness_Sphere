@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-mongoose.connect(`mongodb+srv://admin:${process.env['mongodb']}@cluster0.qs1hl6j.mongodb.net/datahack?retryWrites=true&w=majority`);
+mongoose.connect("mongodb://localhost:27017/fitsphereDb");
 // mongodb + srv://admin:admin@cluster0.qs1hl6j.mongodb.net/
 
 //mongoose.connect(process.env['mongo_url');
